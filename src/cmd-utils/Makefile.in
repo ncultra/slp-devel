@@ -1,0 +1,221 @@
+#         -*- makefile -*-
+# This makefile template was createdy at Thu Nov  4 11:03:23 2004
+# command line: ./build_init --package ldap_slp --version 0.1.2 --rootdir /home/mdday/src/ldap_slp --subdir src --subdir src/kernel --subdir src/cmd-utils --subdir src/cmd-utils/slp_client --subdir src/cmd-utils/slp_query --subdir src/cmd-utils/slp_srvreg --subdir src/cmd-utils/slp_attrreq 
+# Process this file with autoconf to produce a Makefile.
+
+export PACKAGE_NAME := @PACKAGE_NAME@
+export PACKAGE_VERSION := @PACKAGE_VERSION@
+VPATH := @srcdir@
+export HOST_PROCESSOR := @HOST_PROCESSOR@
+export HOST_OS := @HOST_OS@
+export CONFIG_TIME := @config_time@
+export CONFIG_HOST := @config_host@
+export CONFIG_USER := @USER@
+export CONFIG_STRING := @canonical_config@
+CANONICAL_BUILD := @build@
+
+export HOST_PROCESSOR := @HOST_PROCESSOR@
+export HOST_OS := @HOST_OS@
+export HOST_VENDOR := @HOST_VENDOR@
+
+export CC := @CC@
+export CPPFLAGS := @CPPFLAGS@
+export CFLAGS := @CFLAGS@
+export CXXFLAGS := @CXXFLAGS@
+export LDFLAGS:=@LDFLAGS@
+export LINKER_OPTIONS:=@LINKER_OPTIONS@
+LD_LIBS := 
+LOAD_LIBS :=
+
+export YACC := @YACC@	
+export YFLAGS := @YFLAGS@
+export LEX := @LEX@
+export LFLAGS := @LFLAGS@
+
+export builddir := @builddir@
+export abs_builddir := @abs_builddir@
+export top_builddir := @top_builddir@
+export abs_top_builddir := @abs_top_builddir@
+export srcdir := @srcdir@
+export top_srcdir := @top_srcdir@	
+export abs_top_srcdir := @abs_top_srcdir@
+
+export prefix := @prefix@
+export exec_prefix := @exec_prefix@
+export bindir := @bindir@
+export sbindir := @sbindir@
+export libexecdir := @libexecdir@
+export libdir := @libdir@
+export includedir := @includedir@
+
+ifeq ($(HOST_OS), windows)
+export INCLUDE:=@INCLUDE@
+export LIB:=@LIB@
+endif 
+
+CVS_ROOT := @CVS_ROOT@
+PORTAL := @PORTAL@
+PORTAL_MAILTO := @PORTAL_MAILTO@
+EXTRACT := @EXTRACT@
+INSTALL_CMD := @INSTALL_CMD@
+UNINSTALL_CMD := @UNINSTALL_CMD@
+
+export OS_PORT_INCLUDE := @OS_PORT_INCLUDE@
+export OS_PORT_SRC := @OS_PORT_SRC@
+export OS_PORT_OBJ := @OS_PORT_OBJ@
+export OS_PORT_DIR := @OS_PORT_DIR@
+export OS_PORT_PASEDIR := @OS_PORT_PASEDIR@
+export LINKER := @LINKER@
+export LIB_INCLUDE_FLAG:= @LIB_INCLUDE_FLAG@
+export THREAD_LIBS := @THREAD_LIBS@
+export REENTRANT_FLAG := @REENTRANT_FLAG@
+export NO_LINK_FLAG := @NO_LINK_FLAG@
+export LIB_SUFFIX:= @LIB_SUFFIX@
+export DLL_SUFFIX:= @DLL_SUFFIX@
+
+export EXE_OUT := @EXE_OUT@
+export OBJ_OUT := @OBJ_OUT@
+export INSTALL_EXE := @INSTALL_EXE@
+export INSTALL_FLAGS := @INSTALL_FLAGS@
+export LIBTOOL := @LIBTOOL@
+export LIBTOOL_MODE_COMPILE := @LIBTOOL_MODE_COMPILE@
+export LIBTOOL_MODE_LINK := @LIBTOOL_MODE_LINK@
+export LIBTOOL_MODE_CLEAN := @LIBTOOL_MODE_CLEAN@
+export LIBTOOL_MODE_INSTALL := @LIBTOOL_MODE_INSTALL@
+export LDCONFIG := @LDCONFIG@
+export ARCHIVE := @ARCHIVE@
+export INSTALL := @INSTALL@
+
+#-------------------------Make Targets----------------------------------#
+# all - everything
+# bin - program files
+# lib - libraries
+# test - build and run tests
+# install - install programs files 
+# doc - make and install documentation files 
+# clean - remove obj files and recalculate dependencies
+# dist - create a tarball of source files
+# report - send build status to portal server 
+#-----------------------------------------------------------------------#
+RECURSIVE_TARGETS=all-recursive bin-recursive test-recursive install-recursive \
+doc-recursive clean-recursive report-recursive
+
+.PHONY: $(RECURSIVE_TARGETS) all bin lib test install doc clean dist report banner
+
+## include the actual targets and rules
+
+
+include local.mak
+
+$(RECURSIVE_TARGETS):
+	@target=`echo $@ | sed s/-recursive//`; \
+        list='$(SUBDIRS)' ; \
+		for subdir in $$list; do \
+	           (cd $$subdir && $(MAKE) $@ ) || exit 1; \
+		done ;\
+		  $(MAKE) $$target || exit 1
+
+clean:
+
+ifeq ($(HOST_OS), aix)
+	-@rm -fe $(PROGRAMS) $(OBJS) $(LIBS) $(SLIBS) $(TESTS) >/dev/null 2>&1
+	-@rm -fe *~ *.o lib*.a lib*.a.* lib*.so lib*.so.* >/dev/null 2>&1
+	@echo "--------------------------------------------------------------"
+	@echo "Binary files and executables cleaned."
+	@echo "--------------------------------------------------------------"
+endif 
+
+ifeq ($(HOST_OS), linux)
+	-@rm -fv $(PROGRAMS) $(OBJS) $(LIBS) $(SLIBS) $(TESTS) >/dev/null 2>&1
+	-@rm -fv *~ *.o lib*.a lib*.a.* lib*.so lib*.so.* >/dev/null 2>&1
+	@echo "--------------------------------------------------------------"
+	@echo "Binary files and executables cleaned."
+	@echo "--------------------------------------------------------------"
+endif 
+
+ifeq ($(HOST_OS), windows)
+	-@rm -fv $(PROGRAMS) $(OBJS) $(LIBS) $(SLIBS) $(TESTS) >/dev/null 2>&1
+	-@rm -fv *.lib *.exe *.dll *.pdb *.ilk *.exp >/dev/null 2>&1
+	@echo "--------------------------------------------------------------"
+	@echo "Binary files and executables cleaned."
+	@echo "--------------------------------------------------------------"
+
+endif 
+
+# Tests must return 1 for success, zero for failure
+test: $(TESTS)
+	@list='$(TESTS)' ;\
+	if  [ -z $$list ] ; then \
+		exit 0; \
+	fi; \
+	curr_dir=`pwd`;\
+	failed=0; passed=0; \
+	failure_names=""; \
+	passed_names=""; \
+	for program in $$list; do \
+		echo "Test: $$(pwd)/$$program" ; \
+		if ./$$program >/dev/null 2>&1; then \
+			failed=`expr $$failed + 1` ; \
+			failure_names=`expr $$failure_names ':'$$(pwd)/$$program`;\
+		else \
+			passed=`expr $$passed + 1` ; \
+			passed_names=`expr $$passed_names ':'$$(pwd)/$$program`;\
+		fi ;\
+		ccode=`expr $$?`; \
+	done ; \
+	echo "------------------------------------------------------------" ;\
+	echo "$$curr_dir Tests: failures: $${failed:-"0"}; successes: $${passed:-"0"}" ; \
+	echo "------------------------------------------------------------" ; \
+	echo "" 
+
+
+
+doc: $(DOCS)
+ 
+dist: 
+report: 
+
+dist: clean-recursive 
+	@dist_dir="$(PACKAGE_NAME)-$(PACKAGE_VERSION)";\
+	dist_name=$$dist_dir.tar.gz;\
+	if [ -d $$dist_dir ] ; then \
+		rm -fr $$dist_dir >/dev/null 2>&1;\
+	fi ;\
+	if [ -e $$dist_name ] ; then \
+		rm -f $$dist_name >/dev/null 2>&1;\
+	fi ;\
+	tar -cspzf $$dist_name -Xexclude.txt . >/dev/null 2>&1;\
+	mkdir $$dist_dir >/dev/null 2>&1;\
+	cd $$dist_dir && tar -xspzf ../$$dist_name . >/dev/null 2>&1;\
+	cd ..&& rm -f $$dist_name >/dev/null 2>&1;\
+	tar -cspvzf $$dist_name $$dist_dir >/dev/null 2>&1;\
+	rm -fvr $$dist_dir >/dev/null 2>&1;\
+	echo "--------------------------------------------------------------";\
+	echo "Source distribution in $$dist_name";\
+	echo "--------------------------------------------------------------"
+
+Makefile: $(abs_top_srcdir)/Makefile.in
+	@mydir=`pwd`;\
+	if [[ $$mydir != $$abs_top_srcdir ]] ; then \
+		echo "retrieving root copy of Makefile.in...";\
+		cp -f $$abs_top_srcdir/Makefile.in .;\
+	else \
+		list='$(SUBDIRS)' ;\
+		for subdir in $$list ; do \
+			echo "distributing Makefile.in to $$subdir";\
+			cp -f $$abs_top_srcdir/Makefile.in $$subdir/Makefile.in ;\
+		done ;\
+	fi ;\
+	cd $$abs_top_srcdir ; \
+	./configure ;\
+	cd $$mydir ;\
+	echo "--------------------------------------------------------------";\
+	echo "Makefile rebuilt in $$mydir" ;\
+	echo "--------------------------------------------------------------"
+
+$(abs_top_srcdir)/config.h: $(abs_top_srcdir)/config.h.in
+	@my_dir=`pwd`;\
+	cd $$abs_top_srcdir && autoheader >/dev/null 2>&1; \
+	$$abs_top_srcdir/configure;\
+	cd $$my_dir >/dev/null 2>&1
+

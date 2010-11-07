@@ -1,0 +1,98 @@
+Basic Installation
+==================
+
+   These are generic installation instructions.
+
+   The `configure' shell script attempts to guess correct values for
+various system-dependent variables used during compilation.  It uses
+those values to create a `Makefile' in each directory of the package.
+It may also create one or more `.h' files containing system-dependent
+definitions.  Finally, it creates a shell script `config.status' that
+you can run in the future to recreate the current configuration, a file
+`config.cache' that saves the results of its tests to speed up
+reconfiguring, and a file `config.log' containing compiler output
+(useful mainly for debugging `configure').
+
+   If you need to do unusual things to compile the package, please try
+to figure out how `configure' could check whether to do them, and mail
+diffs or instructions to the address given in the `README' so they can
+be considered for the next release.  If at some point `config.cache'
+contains results you don't want to keep, you may remove or edit it.
+
+   The file `configure.in' is used to create `configure' by a program
+called `autoconf'.  You only need `configure.in' if you want to change
+it or regenerate `configure' using a newer version of `autoconf'.
+
+The simplest way to compile this package is:
+
+  0. Run the build_init script (one time only) as follows: 
+
+	./build_init --package ldap_slp --version 0.2.4 --rootdir $(pwd) \
+	 --subdir src \
+	--subdir src/port \
+	--subdir src/port/aix5 \
+	--subdir src/kernel  \
+    --subdir src/cmd-utils \
+	--subdir src/cmd-utils/slp_client \
+	--subdir src/cmd-utils/slp_query \
+	--subdir src/cmd-utils/slp_srvreg \
+	--subdir src/cmd-utils/slp_attrreq 
+
+
+	If you change the version number, you should re-run build_init.
+
+	This script initializes the build environment. It copies the
+	autoconf helper scripts and the makefile template, and ensures
+	that the entire directory structure is seeded with all the files
+	needed to build the slp library.
+
+
+  1. run autoconf to generate the .configure script:
+	 
+	autoconf configure.ac<enter>
+	
+  2. `cd' to the directory containing the package's source code and type
+     `./configure' to configure the package for your system.  If you're
+     using `csh' on an old version of System V, you might need to type
+     `sh ./configure' instead to prevent `csh' from trying to execute
+     `configure' itself.
+
+     Running `configure' takes awhile.  While running, it prints some
+     messages telling which features it is checking for.
+
+  3. Type `make' to compile the package.
+
+  4. Optionally, type `make check' to run any self-tests that come with
+     the package.
+
+  5. Type `make install' to install the programs and any data files and
+     documentation.
+
+  6. You can remove the program binaries and object files from the
+     source code directory by typing `make clean'.  To also remove the
+     files that `configure' created (so you can compile the package for
+     a different kind of computer), type `make distclean'.  There is
+     also a `make maintainer-clean' target, but that is intended mainly
+     for the package's developers.  If you use it, you may have to get
+     all sorts of other programs in order to regenerate files that came
+     with the distribution.
+
+
+You can run make in any subdirectory, or run make with
+<option>-recursive to process a directory tree recursively.
+
+
+Debugging and Tracing
+======================
+
+You can build the slp package with debugging and tracing enabled. To
+do so, you need to run the configure script as follows:
+
+./configure DEBUG=TRUE TRACE=TRUE
+
+You can use the DEBUG and TRACE options together or independently.
+
+To build without debugging symbols, use the PRODUCTION option:
+
+./configure PRODUCTION=TRUE
+

@@ -1,0 +1,80 @@
+#!/bin/bash
+
+#/*****************************************************************************
+# *  Description: sample shell script to run SA in daemon mode
+# *
+# *  $Header: /var/lib/cvsroot/ldap_slp/scripts/sa_sample,v 1.4 2005/03/29 21:01:46 mdday Exp $ 	                                                            
+# *               					                    
+## command line syntax for sa_srvreg
+#
+# slp_srvreg -- transmit an SLP Service Registration and print the results.
+# -------------------------------------------------------------------------
+# slp_srvreg  --type=service-type-string
+#            --url=url-string
+#             --attributes=attribute-string
+#            [--address=target-IP]
+#            [--port=target-port]
+#            [--scopes=scope-string]
+#            [--lifetime=seconds]
+#            [--interface=host-IP]
+#            [--daemon=true]
+#            [--use_da=true]
+#            [--test]
+#            [--spi=security-parameters-index] (not used)
+
+# All parameters must be a single string containing no spaces.
+# Always use the format of <parameter>=<value>.
+# Parameters enclosed in brackets are not optional.
+
+
+# number of urls we construct - translates into number of service adverts
+num_urls=0   
+
+# array to hold each service:url 
+urls[1]=""
+
+# service type string 
+service="service:nothing:"
+
+# protocol part of the url
+protocol_part="//"
+
+# path part of the url 
+path_part="/etc/nothing;version=1"
+
+# attribute string 
+attributes="(version=1)"
+
+# collect all the ip interfaces on this host
+# rely on formatting of the linux ifconfig command. 
+# this is a dirty hack
+IP_ADDRS=`/sbin/ifconfig | awk '/addr:/ {print $2}' | sed 's/addr://g'`
+
+
+# if slp_srvreg is already running in daemon mode, kill it
+killall slp_srvreg
+
+# loop on each ip address and use it to construct a service:url 
+for arg in $IP_ADDRS ; do 
+	let num_urls="$num_urls + 1"
+	urls[$num_urls]=$service
+	temp_string=${urls[$num_urls]}${protocol_part}
+	urls[$num_urls]=${temp_string}${arg}${path_part}
+	echo ${urls[$num_urls]}
+
+	if [ "$num_urls" -eq "1" ]
+	then 
+	    slp_srvreg --type="$service" \
+                       --url=${urls[$num_urls]} \
+                       --attributes="$attributes" \
+                        --daemon=true \
+                        --address="127.0.0.1" &
+	else 
+	    slp_srvreg --type="$service" \
+                       --url=${urls[$num_urls]} \
+                       --attributes="(version=2),(vendor=IBM)" \
+                       --address="127.0.0.1"
+
+	fi
+
+done 

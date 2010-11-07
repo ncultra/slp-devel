@@ -1,0 +1,140 @@
+diff -Nru -X /home/mdday/src/slp-xclude.txt /home/mdday/src/ldap-slp-fsp/ldap_slp/src/cmd-utils/slp_client/slp_client.c /home/mdday/src/ldap_slp/src/cmd-utils/slp_client/slp_client.c
+--- /home/mdday/src/ldap-slp-fsp/ldap_slp/src/cmd-utils/slp_client/slp_client.c	2007-01-04 09:42:15.000000000 -0500
++++ /home/mdday/src/ldap_slp/src/cmd-utils/slp_client/slp_client.c	2007-07-30 14:09:43.000000000 -0400
+@@ -1321,7 +1321,7 @@
+ 	  len = 0;
+ 	
+ 	if(total_len + 2 + len < LSLP_MTU) {
+-	  _LSLP_SETSHORT(bptr, len, 0);
++	  _LSLP_SETSHORT(bptr + 2, len, 0);
+ 	  if(len)
+ 	    memcpy(bptr + 2, tags, len);
+ 	  total_len += ( 2 + len );
+@@ -2011,8 +2011,6 @@
+ 	  total_len += (2 + str_len);
+ 	  
+ 	  /* decode the scope list */
+-	  str_len = _LSLP_GETSHORT(bptr, 0);
+-	  
+ 	  if((total_len + 2 + (str_len = _LSLP_GETSHORT(bptr, 0))) < purported_len) {
+ 	    if(NULL != (scopes = (int8 *)malloc(str_len + 1))) {
+ 	      memcpy(scopes, bptr + 2, str_len);
+@@ -2051,8 +2049,7 @@
+ 	      free(scopes);
+ 	    } /* malloced scopes string */
+ 	  } else { /* scope list sanity check */
+-	    SLP_TRACE("SRVREG message failed sanity check - purported %d total %d",
+-		      purported_len, total_len);
++	    SLP_TRACE("SRVREG message failed sanity check");
+ 	  }
+ 	  
+ 	  free(type_string);
+@@ -2088,6 +2085,7 @@
+   int16 err;
+   int32 count, buf_len;
+   int32 total_len, purported_len;
++  SLP_TRACE("entered decode_srvrply\n");
+ 
+   if(FALSE == (is_tcp = get_client_rcv_buf(client, &remote, &bptr, &con)) ) 
+     remote = remote_addr;
+@@ -2330,6 +2328,7 @@
+   struct lslp_srv_req *rq = NULL;
+   int32 str_len, buf_len;
+   int16 err = LSLP_PARSE_ERROR ;
++  SLP_TRACE("entering decode_srvreq\n");
+   
+   if(FALSE == (is_tcp = get_client_rcv_buf(client, &remote, &bptr, &con)) ) 
+     remote = remote_addr;
+@@ -2338,9 +2337,6 @@
+   mcast = ( ((_LSLP_GETFLAGS( bptr )) & (LSLP_FLAGS_MCAST) ) ? TRUE : FALSE   ) ;
+ 
+   purported_len = _LSLP_GETLENGTH(bptr);
+-
+-
+-  lslpSrvRegList *reg = client->regs.next;
+   
+   bptr += (total_len = _LSLP_HDRLEN(bptr));
+   if(purported_len < LSLP_MTU && (total_len < purported_len)) {
+@@ -2366,6 +2362,7 @@
+ 	      }
+ 	      memcpy(rq->srvcType, bptr + 2, str_len);
+ 	      *(rq->srvcType + str_len) = 0x00;
++	      SLP_TRACE("service type is: %s\n", rq->srvcType);
+ 	      bptr += 2 + str_len;
+ 	      total_len += 2 + str_len;
+ 	      
+@@ -2981,8 +2978,7 @@
+ 					     _LSLP_GETLENGTH(client->_msg_buf), 
+ 					     0, 
+ 					     &target, sizeof(target) ))) {
+-	SLP_TRACE("Error sending datagram to %s; err = %d",
+-		  inet_ntoa(target.sin_addr), err);
++	SLP_TRACE("Error sending datagram to %s",inet_ntoa(target.sin_addr));
+ 	_LSLP_CLOSESOCKET(sock);
+ 	return(FALSE);
+       } /* oops - error sending data */
+@@ -3590,7 +3586,6 @@
+     if(NULL == (reg->url = lslpAllocURL()))
+       abort();
+     reg->directoryTime = lifetime + time(NULL);
+-    
+     reg->url->atomized = _lslpDecodeURLs(&url_copy, 1);
+     reg->url->url = url_copy;
+     reg->url->lifetime = lifetime + time(NULL);
+@@ -3604,8 +3599,9 @@
+       free(scope_copy);
+     reg->attrList  = _lslpDecodeAttrString((int8 *)attributes);
+     _LSLP_INSERT(reg, (lslpSrvRegList *)&(client->regs));
+-    SLP_TRACE("Registered %s locally: node address: %p ",reg->url->url, reg);
++    SLP_TRACE("Registered %s locally ", url);
+   }
++  free(url_copy); /* <<< Thu Oct 26 14:03:33 2006 mdd >>> */
+   return;
+ }
+ 
+@@ -4067,7 +4063,7 @@
+ 
+ 		regs = client->regs.next;
+ 		attr_return = NULL;
+-		
++		 
+ 		while(! _LSLP_IS_HEAD(regs) ){
+ 		  if( ! lslp_string_compare(regs->url->url, url->url)) {
+ 		    /* we have a hit on the url, see if the scopes intersect */
+@@ -4141,7 +4137,7 @@
+ 		  free(con->_msg_buf);
+ 		  con->_msg_buf = NULL;
+ 		} else {
+-		  if(attr_return != NULL || ! (_LSLP_GETFLAGS(client->_rcv_buf) & LSLP_FLAGS_MCAST)) {
++		  if(attr_tags != NULL || ! (_LSLP_GETFLAGS(client->_rcv_buf) & LSLP_FLAGS_MCAST)) {
+ 		    if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
+ 		      SOCKADDR_IN local;
+ 		      int err = 1;
+@@ -5649,18 +5645,11 @@
+ 	    lslpSrvRegList *temp_reg = reg;
+ 	    SLP_TRACE("registration timed out, removing\n");
+ 	    	    
+-
+ 	    reg = reg->next;
+ 	    _LSLP_UNLINK(temp_reg);
+ 	    lslpFreeSrvReg(temp_reg);
+ 	    continue;
+ 	  }
+-
+-	  SLP_TRACE("dumping reg at address %p", reg);
+-	    SLP_TRACE("url: %s", reg->url->url);
+-	    SLP_TRACE("type: %s", reg->srvType);
+-
+-
+ 	  if(TRUE == lslp_srvtype_match(reg->srvType, msg->srvcType)) {
+ 	    /* we need to check for the special case - of a srvreq with service type directory-agent */
+ 	    /* - it is allowed to omit scopes */
+@@ -5677,7 +5666,7 @@
+ 		/* for protected scopes, we need to change stuff URL so that it */
+ 		/* only stuffs url auth blocks that match spis in the srv req */
+ 		if(TRUE == lslpStuffURL(&buf, &avail, reg->url)) {
+-		  SLP_TRACE("stuffed URL: %s\n", reg->url->url);
++		  SLP_TRACE("stuffed URL\n");
+ 		  
+ 		  if(TRUE == pile_up_attrs && ((reg->url->len + ext_offset + 2) < LSLP_MTU)) {
+ 		    SLP_TRACE("piling up attributes\n");

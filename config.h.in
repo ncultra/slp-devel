@@ -1,0 +1,110 @@
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Canonical Build */
+#undef CANONICAL_BUILD
+
+/* Canonical configuration string */
+#undef CANONICAL_CONFIG_STRING
+
+/* Configuration Host */
+#undef CONFIG_HOST
+
+/* Configuration Time */
+#undef CONFIG_TIME
+
+/* Configuration User */
+#undef CONFIG_USER
+
+/* Build for debugging */
+#undef DEBUG_BUILD
+
+/* Dll Export directive for MSFT */
+#undef DLL_EXPORT
+
+/* Dll Import directive for MSFT */
+#undef DLL_IMPORT
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have <WinVer.h> header file */
+#undef HAVE_WINVER_H
+
+/* Target Operation System */
+#undef HOST_OS
+
+/* Host Processor */
+#undef HOST_PROCESSOR
+
+/* Portability Directory */
+#undef OS_PORT_DIR
+
+/* Portability Header */
+#undef OS_PORT_INCLUDE
+
+/* Portability Object */
+#undef OS_PORT_OBJ
+
+/* iSeries PASE Install Directory */
+#undef OS_PORT_PASEDIR
+
+/* Portability Source */
+#undef OS_PORT_SRC
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Build optimized code */
+#undef PRODUCTION_BUILD
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* define trace macro */
+#undef TRACE_ENABLED
+
+/* Using Winsock 2 interface */
+#undef WINSOCK_2
+
+/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+   `char[]'. */
+#undef YYTEXT_POINTER
+
+/* Required for Windows Platform Headers */
+#undef _WIN32_WINNT
